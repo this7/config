@@ -26,7 +26,7 @@ class decide {
         if (static::isClient()) {
             return true;
         }
-        if (static::isDomain()) {
+        if (!static::isDomain()) {
             return true;
         }
     }

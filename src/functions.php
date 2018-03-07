@@ -18,42 +18,8 @@ if (!function_exists('R')) {
      * @return json/array    根据情况返回数据
      */
     function R($callback, ...$table) {
-        $data['user'] = array();
         try {
-            #监测头部是否含有自定义SKEY
-            if (get_http_header(C("weapp", "WX_HEADER_SKEY"))) {
-                #执行微信小程序登录监测
-                $result = weapp::check();
-                if ($result['loginState'] == 1) {
-                    $user = json_decode(json_encode($result['userinfo']), true);
-                    #根据UID或openid获取user_id
-                    if (isset($user['UID'])) {
-                        $user['utype'] = "UID";
-                        $row           = sql::table("user")->where(["UID" => $user['UID']])->first();
-                        if (!empty($row)) {
-                            $user['user_id'] = $row['user_id'];
-                        } else {
-                            throw new Exception('Error return:返回信息错误', -2);
-                        }
-                    } elseif (isset($user['openid'])) {
-                        $user['user_id'] = sql::table("user")->where(["openid" => $user['openid']])->first();
-                        $user['utype']   = 'openid';
-                        if (!empty($row)) {
-                            $user['user_id'] = $row['user_id'];
-                        } else {
-                            throw new Exception('Error return:返回信息错误', -2);
-                        }
-                    }
-                    $data['user'] = $user;
-                } else if ($result['loginState'] == 0) {
-                    if (isset($_SESSION['skey']) && !empty($_SESSION['skey'])) {
-                        $data['user'] = $_SESSION['skey'];
-                    } else {
-                        $error = isset($result['error']) ? $result['error'] : "登录超时,请重新登录";
-                        throw new Exception($error, -1);
-                    }
-                }
-            }
+            $data = array();
             #循环创建数据
             foreach ($table as $key => $value) {
                 $data[$value] = sql::table($value);
@@ -128,108 +94,6 @@ if (!function_exists('R')) {
 
         } catch (Exception $e) {
             \this7\debug\debug::exception($e);
-        }
-    }
-}
-
-if (!function_exists('callFunc')) {
-    /**
-     * 调用函数，用于数据返回
-     * @param  object $func  回调函数
-     * @param  string $table 调用参数
-     * @return json/array    根据情况返回数据
-     */
-    function callFunc($func, ...$table) {
-        $db       = $user       = array();
-        $userInfo = login::getUserInfo();
-        if ($userInfo['loginState'] == 1) {
-            $user = json_decode(json_encode($userInfo['userinfo']), true);
-            #根据UID或openid获取user_id
-            if (isset($user['UID'])) {
-                $user['utype'] = "UID";
-                $row           = sql::table("user")->where(["UID" => $user['UID']])->first();
-                if (!empty($row)) {
-                    $user['user_id'] = $row['user_id'];
-                } else {
-                    ret(-2, 'Error return:返回信息错误');
-                }
-            } elseif (isset($user['openid'])) {
-                $user['user_id'] = sql::table("user")->where(["openid" => $user['openid']])->first();
-                $user['utype']   = 'openid';
-                if (!empty($row)) {
-                    $user['user_id'] = $row['user_id'];
-                } else {
-                    ret(-2, 'Error return:返回信息错误');
-                }
-            }
-            $db['user'] = $user;
-        }
-        if ($userInfo['loginState'] == 0) {
-            ret(-2, $userInfo['error']);
-        }
-        foreach ($table as $key => $value) {
-            $db[$value] = sql::table($value);
-        }
-        #传入数据库,调用匿名函数
-        $retbody = $func($db);
-        if (is_array($retbody)) {
-            #判断是否做简单操作
-            #如果第一个参数是对象，则执行数据化操作
-            if (is_object($retbody[0])) {
-                $db = $retbody[0];
-                switch ($retbody[1]) {
-                case 'insert':
-                    $db->insert($retbody[2]);
-                    if ($id = $db->getInsertId()) {
-                        ret(0, '写入数据成功', $id);
-                    } else {
-                        ret(-2, '写入数据失败');
-                    }
-                    break;
-                case 'update':
-                    $db->update($retbody[2]);
-                    if ($id = $db->getInsertId()) {
-                        ret(0, '更新数据成功', $id);
-                    } else {
-                        ret(-2, '更新数据失败');
-                    }
-                    break;
-                case 'check':
-                    $row = $db->where($retbody[2])->first();
-                    if ($row) {
-                        ret(0, '数据存在', $row);
-                    } else {
-                        ret(-2, '无查找数据');
-                    }
-                    break;
-                case 'select':
-                    $row = $db->where($retbody[2])->limit(10)->get();
-                    if ($row) {
-                        ret(0, '数据存在,仅获取10条记录', $row);
-                    } else {
-                        ret(-2, '无查找数据');
-                    }
-                    break;
-                case 'delete':
-                    $db->where($retbody[2])->delete();
-                    if ($db->getAffectedRow()) {
-                        ret(0, '删除数据成功');
-                    } else {
-                        ret(-2, '删除数据失败');
-                    }
-                    break;
-                default:
-                    ret(-2, '抱歉操作方法不存在');
-                    break;
-                }
-            }
-            if (empty($retbody[2])) {
-                ret($retbody[0], $retbody[1]);
-            } else {
-                ret($retbody[0], $retbody[1], $retbody[2]);
-            }
-        } else {
-            ret(-2, 'Error return:返回信息错误', $retbody);
         }
     }
 }
@@ -894,5 +758,22 @@ if (!function_exists('get_http_header')) {
         $headerKey = str_replace('-', '_', $headerKey);
         $headerKey = 'HTTP_' . $headerKey;
         return isset($_SERVER[$headerKey]) ? $_SERVER[$headerKey] : '';
+    }
+}
+
+if (!function_exists('get_relative_path')) {
+    /**
+     * 获取当前相对路径
+     * @param  string $value [description]
+     * @return [type]        [description]
+     */
+    function get_relative_path($dir = '', $path = '') {
+        $dir = str_replace(ROOT_DIR, ROOT, $dir);
+        if ($path) {
+            return $dir . '/' . $path;
+        } else {
+            return $dir;
+        }
+
     }
 }

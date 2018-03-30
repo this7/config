@@ -19,10 +19,26 @@ if (!function_exists('R')) {
      */
     function R($callback, ...$table) {
         try {
+            $_user = array();
+            if (defined('LOGIN')) {
+                if (!class_exists('server\models\login')) {
+                    throw new Exception('Error return:Login模型不存在', -2);
+                }
+                if (!method_exists('server\models\login', 'login')) {
+                    throw new Exception('Error return:Login::login方法不存在', -2);
+                }
+                $_user = call_user_func_array(array('server\models\login', 'login'), []);
+                defined('_USER') or define('_USER', true);
+            }
             $data = array();
             #循环创建数据
             foreach ($table as $key => $value) {
                 $data[$value] = sql::table($value);
+            }
+            if (isset($data['user'])) {
+                $data['_user'] = $_user;
+            } else {
+                $data['user'] = $_user;
             }
             #传入数据库,调用匿名函数
             $return = $callback($data);
@@ -90,7 +106,7 @@ if (!function_exists('R')) {
                     break;
                 }
             }
-            return \this7\config\config::output(compact('code', 'msg', 'data', 'url'));
+            //return \this7\config\config::output(compact('code', 'msg', 'data', 'url'));
 
         } catch (Exception $e) {
             \this7\debug\debug::exception($e);

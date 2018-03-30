@@ -106,7 +106,7 @@ if (!function_exists('R')) {
                     break;
                 }
             }
-            //return \this7\config\config::output(compact('code', 'msg', 'data', 'url'));
+            return \this7\config\config::output(compact('code', 'msg', 'data', 'url'));
 
         } catch (Exception $e) {
             \this7\debug\debug::exception($e);

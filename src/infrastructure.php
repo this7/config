@@ -19,6 +19,8 @@ date_default_timezone_set("PRC"); //设置时区（中国)
 
 defined('DEBUG') or define('DEBUG', true);
 
+defined('LOGIN') or define('LOGIN', false);
+
 /**
  * 设置开始错误信息
  */

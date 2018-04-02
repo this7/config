@@ -28,7 +28,6 @@ if (!function_exists('R')) {
                     throw new Exception('Error return:Login::login方法不存在', -2);
                 }
                 $_user = call_user_func_array(array('server\models\login', 'login'), []);
-                defined('_USER') or define('_USER', true);
             }
             $data = array();
             #循环创建数据

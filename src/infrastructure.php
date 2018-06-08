@@ -27,8 +27,10 @@ defined('LOGIN') or define('LOGIN', false); //登录控制器
 if (DEBUG) {
     #打开错误显示
     ini_set("display_errors", "On");
+    #php启动错误信息
+    ini_set("display_startup_errors", "On");
     #开启所有错误提醒
-    error_reporting(E_ALL | E_STRICT);
+    error_reporting(0);
 }
 
 /**

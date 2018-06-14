@@ -508,6 +508,125 @@ if (!function_exists('decrypt')) {
     }
 }
 
+if (!function_exists('redirect')) {
+    /**
+     * 重定向URL地址
+     * @param  string $uri    URL地址
+     * @param  string $method 跳转模式，auto 、 location 和 refresh
+     * @param  [type] $code   指定的 HTTP 状态码
+     * @return [type]         [description]
+     */
+    function redirect($uri = '', $method = 'location', $http_response_code = 302) {
+        if (!preg_match('#^https?://#i', $uri)) {
+            $uri = site_url($uri);
+        }
+
+        switch ($method) {
+        case 'refresh':header("Refresh:0;url=" . $uri);
+            break;
+        default:header("Location: " . $uri, TRUE, $http_response_code);
+            break;
+        }
+        exit;
+    }
+}
+
+if (!function_exists('site_url')) {
+    /**
+     * 重新组合URL地址
+     * @param  string $address URL地址
+     * @param  string $parameter 参数
+     * @return [type]      [description]
+     */
+    function site_url($address = NULL, $parameter = NULL) {
+        if (strstr($address, "http://") || strstr($address, "https://") || strstr($address, "//")) {
+            return $address;
+        }
+        $array = explode("/", $address);
+        $count = count($array);
+        $par   = array();
+        $url   = null;
+        switch ($count) {
+        case '3':
+            $root     = rtrim(ROOT, "/") . '/' . $array[0];
+            $par['c'] = $array[1];
+            $par['a'] = $array[2];
+            break;
+        case '2':
+            $root     = rtrim(ROOT, "/");
+            $par['c'] = $array[0];
+            $par['a'] = $array[1];
+            break;
+        default:
+        case '1':
+            $root     = rtrim(ROOT, "/");
+            $par['c'] = $_GET['model'];
+            $par['a'] = $array[0];
+            break;
+        }
+        #转换参数信息
+        if (!empty($parameter)) {
+            if (strstr($parameter, "=")) {
+                $array = strstr($parameter, ";") ? explode(';', $parameter) : explode('&', $parameter);
+                foreach ($array as $key => $value) {
+                    $value          = explode('=', $value);
+                    $par[$value[0]] = $value[1];
+                }
+            } elseif (strstr($parameter, "/")) {
+                $array = explode('/', $parameter);
+                for ($i = 0; $i < count($array); $i += 2) {
+                    $par[$array[$i]] = $array[$i + 1];
+                }
+            } elseif (is_array($parameter)) {
+                $par = $parameter;
+            }
+        }
+        #进行参数拼接
+        foreach ($par as $key => $value) {
+            if ($key == 'c' || $key == 'a' || $key == 'w') {
+                $url .= "/{$value}";
+            } else {
+                $url .= "/{$key}/{$value}";
+            }
+        }
+        return $root . $url;
+    }
+}
+
+if (!function_exists('replace_url')) {
+    /**
+     * 替换URL地址
+     * @param  string $url  URL地址
+     * @param  string $type URL类型 link链接 file文件
+     * @param  string $path URL路径 app应用 root根目录
+     * @return mixed
+     */
+    function replace_url($url = '', $type = 'link') {
+
+        #判断链接是否为空
+        if (empty($url) && $type == 'link') {
+            return 'javascript:void(0)';
+        }
+        #判断链接是否为死链
+        if ($url == "javascript:void(0)") {
+            return 'javascript:void(0)';
+        }
+        #判断是否为远程地址
+        if (strstr($url, "//") || strstr($url, "http://") || strstr($url, "https://")) {
+            return $url;
+        }
+        #分类型执行
+        switch ($type) {
+        case 'link':
+            $url = ROOT . "/" . trim($url, "/");
+            break;
+        case 'file':
+            $url = ROOT . "/" . "client/" . trim($url, "/");
+        }
+        return $url;
+    }
+}
+
 if (!function_exists('array_remove')) {
     /**
      * 删除制定KEY的数组

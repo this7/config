@@ -19,18 +19,21 @@ date_default_timezone_set("PRC"); //设置时区（中国)
 
 defined('DEBUG') or define('DEBUG', true); //DEBUG调试器
 
+defined('XDEBUG') or define('XDEBUG', false); //DEBUG调试器
+
 defined('LOGIN') or define('LOGIN', false); //登录控制器
 
 /**
  * 设置开始错误信息
  */
-if (DEBUG) {
-    #打开错误显示
-    ini_set("display_errors", "On");
-    #php启动错误信息
-    ini_set("display_startup_errors", "On");
-    #开启所有错误提醒
-    error_reporting(0);
+if (DEBUG && !XDEBUG) {
+    ini_set('error_log', dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/temp/debug/error_log.txt');
+    #报告运行时错误
+    error_reporting(E_ERROR | E_WARNING | E_PARSE);
+    #报告所有错误
+    error_reporting(E_ALL);
+    #显示错误信息打开
+    ini_set("display_errors", "Off");
 }
 
 /**

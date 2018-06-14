@@ -217,70 +217,10 @@ class config extends base {
         $path  = explode('?', $url)[0];
         $query = parse_url($url, PHP_URL_QUERY);
         if ($query) {
-            return static::getUrl($path, $query);
+            return site_url($path, $query);
         } else {
             return false;
         }
-    }
-
-    /**
-     * URL地址获取
-     * @param  sting $address   需要解析的地址用/分割
-     * @param  sting $parameter 需要解析的参数
-     * @return url              返回路径
-     */
-    public static function getUrl($address = NULL, $parameter = NULL) {
-        if (strstr($address, "http://") || strstr($address, "https://") || strstr($address, "//")) {
-            return $address;
-        }
-        $array = explode("/", $address);
-        $count = count($array);
-        $par   = array();
-        $url   = null;
-        switch ($count) {
-        case '3':
-            $root     = rtrim(ROOT, "/") . '/' . $array[0];
-            $par['c'] = $array[1];
-            $par['a'] = $array[2];
-            break;
-        case '2':
-            $root     = rtrim(ROOT, "/");
-            $par['c'] = $array[0];
-            $par['a'] = $array[1];
-            break;
-        default:
-        case '1':
-            $root     = rtrim(ROOT, "/");
-            $par['c'] = $_GET['model'];
-            $par['a'] = $array[0];
-            break;
-        }
-        #转换参数信息
-        if (!empty($parameter)) {
-            if (strstr($parameter, "=")) {
-                $array = strstr($parameter, ";") ? explode(';', $parameter) : explode('&', $parameter);
-                foreach ($array as $key => $value) {
-                    $value          = explode('=', $value);
-                    $par[$value[0]] = $value[1];
-                }
-            } elseif (strstr($parameter, "/")) {
-                $array = explode('/', $parameter);
-                for ($i = 0; $i < count($array); $i += 2) {
-                    $par[$array[$i]] = $array[$i + 1];
-                }
-            } elseif (is_array($parameter)) {
-                $par = $parameter;
-            }
-        }
-        #进行参数拼接
-        foreach ($par as $key => $value) {
-            if ($key == 'c' || $key == 'a' || $key == 'w') {
-                $url .= "/{$value}";
-            } else {
-                $url .= "/{$key}/{$value}";
-            }
-        }
-        return $root . $url;
     }
 
     /**

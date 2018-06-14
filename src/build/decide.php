@@ -26,9 +26,6 @@ class decide {
         if (static::isClient()) {
             return true;
         }
-        if (!static::isDomain()) {
-            return true;
-        }
     }
     /**
      * 是否为异步提交
@@ -86,8 +83,8 @@ class decide {
      */
     public static function isClient() {
         #判断是否客户端请求
-        if (get_http_header('x-ts-code')
-            || get_http_header('x-ts-skey')
+        if (get_http_header('x-this7-code')
+            || get_http_header('x-this7-skey')
         ) {
             return true;
         } else {

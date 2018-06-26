@@ -11,6 +11,8 @@
  */
 header("Content-Type:text/html;charset=utf-8"); //设置系统的输出字符为utf-8
 
+header("Access-Control-Allow-Origin: *");
+
 ob_start(); //启动服务器缓冲
 
 session_start(); //开始服务器session

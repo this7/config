@@ -911,3 +911,48 @@ if (!function_exists('get_relative_path')) {
 
     }
 }
+
+if (!function_exists('compress_css')) {
+    /**
+     * 压缩CSS代码
+     * @param  string $value [description]
+     * @return [type]        [description]
+     */
+    function compress_css($buffer) {
+        /* remove comments */
+        $buffer = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $buffer);
+        /* remove tabs, spaces, newlines, etc. */
+        $buffer = str_replace(array("", "\r", "\n", "\t", '  ', '    ', '    '), '', $buffer);
+        return $buffer;
+    }
+}
+
+if (!function_exists('compress_html')) {
+    /**
+     * 压缩html代码
+     * @param  string $value [description]
+     * @return [type]        [description]
+     */
+    function compress_html($string) {
+        $string  = str_replace("\r\n", '', $string); //清除换行符
+        $string  = str_replace("\n", '', $string); //清除换行符
+        $string  = str_replace("\t", '', $string); //清除制表符
+        $pattern = array(
+            "/> *([^ ]*) *</", //去掉注释标记
+            "/[\s]+/",
+            "/<!--[^!]*-->/",
+            "/\" /",
+            "/ \"/",
+            "'/\*[^*]*\*/'",
+        );
+        $replace = array(
+            ">\\1<",
+            " ",
+            "",
+            "\"",
+            "\"",
+            "",
+        );
+        return preg_replace($pattern, $replace, $string);
+    }
+}

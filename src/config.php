@@ -17,25 +17,31 @@ use this7\config\build\decide;
  * 框架基础配置文件
  */
 class config extends base {
-    protected static $items = [];
+    /**
+     * 设置存储
+     * @var array
+     */
+    protected static $items = array(
+        'GET'     => '',
+        'POST'    => '',
+        'REQUEST' => '',
+        'SERVER'  => '',
+        'GLOBALS' => '',
+        'SESSION' => '',
+        'COOKIE'  => '',
+    );
 
     /**
      * 定义请求常量
      */
     public static function defineConst() {
-        self::$items['POST']    = $_POST;
+        self::$items['POST']    = self::getPost();
         self::$items['GET']     = $_GET;
         self::$items['REQUEST'] = $_REQUEST;
         self::$items['SERVER']  = $_SERVER;
         self::$items['GLOBALS'] = $GLOBALS;
         self::$items['SESSION'] = $_SESSION;
         self::$items['COOKIE']  = $_COOKIE;
-        if (empty($_POST)) {
-            $input = file_get_contents('php://input');
-            if ($data = json_decode($input, true)) {
-                self::$items['POST'] = $_POST = $data;
-            }
-        }
         defined('IS_DEFEND') or define('IS_DEFEND', false);
         defined('IS_GET') or define('IS_GET', decide::isMethod('get'));
         defined('IS_POST') or define('IS_POST', decide::isMethod('post'));
@@ -49,6 +55,31 @@ class config extends base {
         defined('IS_DOMAIN') or define('IS_DOMAIN', decide::isDomain());
         defined('IS_HTTPS') or define('IS_HTTPS', decide::isHttps());
     }
+
+    /**
+     * @Author   Sean       Yan
+     * @DateTime 2018-06-21
+     * @param    array      $data 路由数据
+     * @return   array            返回数组
+     */
+    public static function getPost($data = []) {
+        if ($_POST) {
+            $data = $_POST;
+        } else {
+            $data = file_get_contents('php://input');
+        }
+        if (is_json($data)) {
+            return $_POST = to_array($data);
+        } elseif (is_array($data)) {
+            return $_POST = $data;
+        } elseif (is_string($data)) {
+            parse_str($data, $query_arr);
+            return $_POST = $query_arr;
+        } else {
+            return $_POST = $data;
+        }
+    }
+
     /**
      * 执行配置文件.
      *
@@ -213,6 +244,13 @@ class config extends base {
         return [0, '其他', $args, ''];
     }
 
+    /**
+     *  参数设置
+     * @Author   Sean       Yan
+     * @DateTime 2018-07-03
+     * @param    [type]     $url [description]
+     * @return   [type]          [description]
+     */
     public static function params($url) {
         $path  = explode('?', $url)[0];
         $query = parse_url($url, PHP_URL_QUERY);
@@ -221,34 +259,6 @@ class config extends base {
         } else {
             return false;
         }
-    }
-
-    /**
-     * 需要出书的数据
-     * @param  string  $data 输出
-     * @param  integer $type 清空输出
-     * @return 返回数据
-     */
-    public static function output($data = '', $type = 0) {
-        #强制清除数据
-        if ($type === 1) {
-            ob_end_clean();
-        }
-        #判断浏览器
-        if (IS_API) {
-            ob_end_clean();
-            $data = to_json($data);
-            if (IS_DEFEND) {
-                $data = encrypt($data, FRAMEKEY);
-            }
-            echo $data;
-            die();
-        }
-        #判断是否内调返回
-        if (isset($data['code']) && $data['code'] == 0) {
-            return $data['data'];
-        }
-        return $data;
     }
 
     /**

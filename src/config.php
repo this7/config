@@ -68,13 +68,13 @@ class config extends base {
         } else {
             $data = file_get_contents('php://input');
         }
-        if (is_json($data)) {
-            return $_POST = to_array($data);
-        } elseif (is_array($data)) {
-            return $_POST = $data;
-        } elseif (is_string($data)) {
+        if (is_string($data)) {
             parse_str($data, $query_arr);
             return $_POST = $query_arr;
+        } elseif (is_array($data)) {
+            return $_POST = $data;
+        } elseif (is_json($data)) {
+            return $_POST = to_array($data);
         } else {
             return $_POST = $data;
         }

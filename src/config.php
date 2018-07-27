@@ -16,7 +16,7 @@ use this7\config\build\decide;
 /**
  * 框架基础配置文件
  */
-class config extends base {
+class config {
     /**
      * 设置存储
      * @var array
@@ -49,11 +49,12 @@ class config extends base {
         defined('IS_PUT') or define('IS_PUT', decide::isMethod('put'));
         defined('IS_AJAX') or define('IS_AJAX', decide::isAjax());
         defined('IS_WECHAT') or define('IS_WECHAT', decide::isWeChat());
-        defined('IS_API') or define('IS_API', decide::isAPI());
-        defined('IS_WEAPP') or define('IS_WEAPP', decide::isWeAPP());
-        defined('IS_CLIENT') or define('IS_CLIENT', decide::isClient());
         defined('IS_DOMAIN') or define('IS_DOMAIN', decide::isDomain());
         defined('IS_HTTPS') or define('IS_HTTPS', decide::isHttps());
+
+        defined('ROOT') or define('ROOT', base::web());
+        defined('URL') or define('URL', base::url());
+        define("HISTORY", isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : '');
     }
 
     /**

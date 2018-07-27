@@ -14,20 +14,6 @@ namespace this7\config\build;
 class decide {
 
     /**
-     * 判断API请求
-     */
-    public static function isAPI() {
-        if (static::isAjax()) {
-            return true;
-        }
-        if (static::isWeAPP()) {
-            return true;
-        }
-        if (static::isClient()) {
-            return true;
-        }
-    }
-    /**
      * 是否为异步提交
      *
      * @return bool
@@ -58,38 +44,6 @@ class decide {
      */
     public static function isWeChat() {
         return isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false;
-    }
-
-    /**
-     * 微信小程序检测
-     *
-     * @return bool
-     */
-    public static function isWeAPP() {
-        #判断是否客户端请求
-        if (get_http_header('x-wx-code')
-            || get_http_header('x-wx-skey')
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * This7客户端判断
-     *
-     * @return bool
-     */
-    public static function isClient() {
-        #判断是否客户端请求
-        if (get_http_header('x-this7-code')
-            || get_http_header('x-this7-skey')
-        ) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     /**
@@ -136,93 +90,7 @@ class decide {
             $mobile_browser++;
         }
         $mobile_ua     = strtolower(substr($_SERVER['HTTP_USER_AGENT'], 0, 4));
-        $mobile_agents = [
-            'w3c ',
-            'acs-',
-            'alav',
-            'alca',
-            'amoi',
-            'audi',
-            'avan',
-            'benq',
-            'bird',
-            'blac',
-            'blaz',
-            'brew',
-            'cell',
-            'cldc',
-            'cmd-',
-            'dang',
-            'doco',
-            'eric',
-            'hipt',
-            'inno',
-            'ipaq',
-            'java',
-            'jigs',
-            'kddi',
-            'keji',
-            'leno',
-            'lg-c',
-            'lg-d',
-            'lg-g',
-            'lge-',
-            'maui',
-            'maxo',
-            'midp',
-            'mits',
-            'mmef',
-            'mobi',
-            'mot-',
-            'moto',
-            'mwbp',
-            'nec-',
-            'newt',
-            'noki',
-            'oper',
-            'palm',
-            'pana',
-            'pant',
-            'phil',
-            'play',
-            'port',
-            'prox',
-            'qwap',
-            'sage',
-            'sams',
-            'sany',
-            'sch-',
-            'sec-',
-            'send',
-            'seri',
-            'sgh-',
-            'shar',
-            'sie-',
-            'siem',
-            'smal',
-            'smar',
-            'sony',
-            'sph-',
-            'symb',
-            't-mo',
-            'teli',
-            'tim-',
-            'tosh',
-            'tsm-',
-            'upg1',
-            'upsi',
-            'vk-v',
-            'voda',
-            'wap-',
-            'wapa',
-            'wapi',
-            'wapp',
-            'wapr',
-            'webc',
-            'winw',
-            'winw',
-            'xda',
-            'xda-',
+        $mobile_agents = ['w3c ', 'acs-', 'alav', 'alca', 'amoi', 'audi', 'avan', 'benq', 'bird', 'blac', 'blaz', 'brew', 'cell', 'cldc', 'cmd-', 'dang', 'doco', 'eric', 'hipt', 'inno', 'ipaq', 'java', 'jigs', 'kddi', 'keji', 'leno', 'lg-c', 'lg-d', 'lg-g', 'lge-', 'maui', 'maxo', 'midp', 'mits', 'mmef', 'mobi', 'mot-', 'moto', 'mwbp', 'nec-', 'newt', 'noki', 'oper', 'palm', 'pana', 'pant', 'phil', 'play', 'port', 'prox', 'qwap', 'sage', 'sams', 'sany', 'sch-', 'sec-', 'send', 'seri', 'sgh-', 'shar', 'sie-', 'siem', 'smal', 'smar', 'sony', 'sph-', 'symb', 't-mo', 'teli', 'tim-', 'tosh', 'tsm-', 'upg1', 'upsi', 'vk-v', 'voda', 'wap-', 'wapa', 'wapi', 'wapp', 'wapr', 'webc', 'winw', 'winw', 'xda', 'xda-',
         ];
         if (in_array($mobile_ua, $mobile_agents)) {
             $mobile_browser++;
@@ -230,11 +98,11 @@ class decide {
         if (strpos(strtolower($_SERVER['ALL_HTTP']), 'operamini') !== false) {
             $mobile_browser++;
         }
-        // Pre-final check to reset everything if the user is on Windows
+        # 如果用户在Windows上，预先检查重置所有内容
         if (strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'windows') !== false) {
             $mobile_browser = 0;
         }
-        // But WP7 is also Windows, with a slightly different characteristic
+        # 如果用户在Windows上，则是预final检查，但WP7也是Windows，其特点略有不同。
         if (strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'windows phone') !== false) {
             $mobile_browser++;
         }

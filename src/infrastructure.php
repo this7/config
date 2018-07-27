@@ -26,19 +26,6 @@ defined('XDEBUG') or define('XDEBUG', false); //DEBUG调试器
 defined('LOGIN') or define('LOGIN', false); //登录控制器
 
 /**
- * 设置开始错误信息
- */
-if (DEBUG && !XDEBUG) {
-    ini_set('error_log', dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/temp/debug/error_log.txt');
-    #报告运行时错误
-    error_reporting(E_ERROR | E_WARNING | E_PARSE);
-    #报告所有错误
-    error_reporting(E_ALL);
-    #显示错误信息打开
-    ini_set("display_errors", "Off");
-}
-
-/**
  * 判断PHP版本是否符合
  */
 if (version_compare(PHP_VERSION, '5.6.0', '<')) {
@@ -74,12 +61,3 @@ define('FRAME_DIR', dirname(dirname(dirname(__FILE__))));
 define('ROOT_DIR', dirname(dirname(FRAME_DIR)));
 
 define('VENDOR_DIR', ROOT_DIR . DS . 'vendor');
-
-/**
- * 设置地址
- */
-define('ROOT', preg_replace("#\/Callback#", "", trim('http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']), '/\\')));
-
-defined('URL') or define("URL", rtrim($_SERVER["SCRIPT_NAME"], "/"));
-
-define("HISTORY", isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : '');

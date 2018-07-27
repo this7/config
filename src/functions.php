@@ -105,7 +105,8 @@ if (!function_exists('R')) {
                     break;
                 }
             }
-            return to_json(compact('code', 'msg', 'data', 'url'));
+            return \this7\config\config::output(compact('code', 'msg', 'data', 'url'));
+
         } catch (Exception $e) {
             \this7\debug\debug::exception($e);
         }
@@ -263,7 +264,11 @@ if (!function_exists('ret')) {
                 'data' => $body,
             );
         }
+        ob_end_clean();
         $array = to_json($array);
+        if (IS_DEFEND) {
+            $array = encrypt($array, FRAMEKEY);
+        }
         echo $array;
         exit();
     }
@@ -643,6 +648,30 @@ if (!function_exists('array_remove')) {
     }
 }
 
+if (!function_exists('get_post')) {
+    /**
+     * 获取数据.
+     *
+     * @param string $data 定义变量
+     *
+     * @return [type] [description]
+     */
+    function get_post($data = '') {
+        if ($_POST) {
+            $data = $_POST;
+        } else {
+            $data = file_get_contents('php://input');
+        }
+        if (is_array($data)) {
+            return $data;
+        } elseif (is_json($data)) {
+            return to_array($data);
+        } else {
+            return $data;
+        }
+    }
+}
+
 if (!function_exists('get_sn')) {
     /**
      * 获取SN唯一编号
@@ -736,7 +765,6 @@ if (!function_exists('syn_copy')) {
             }
         }
         foreach ($cmd_array as $key => $value) {
-            P($value);
             exec($value, $output);
         }
         echo "同步完成";

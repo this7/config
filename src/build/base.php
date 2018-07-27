@@ -18,8 +18,9 @@ class base {
      *
      * @return string
      */
-    public function url() {
-        return trim('http://' . $_SERVER['HTTP_HOST'] . '/' . trim($_SERVER['REQUEST_URI'], '/\\'), '/');
+    public static function url() {
+        $root = self::domain();
+        return trim($root. '/' . trim($_SERVER['REQUEST_URI'], '/\\'), '/');
     }
 
     /**
@@ -27,7 +28,7 @@ class base {
      *
      * @return string
      */
-    public function domain() {
+    public static function domain() {
         return defined('RUN_MODE') && RUN_MODE != 'HTTP' ? ''
         : trim('http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']), '/\\');
     }
@@ -38,10 +39,9 @@ class base {
      *
      * @return string
      */
-    public function web() {
-        $root = $this->domain();
-
-        return Config::get('http.rewrite') ? $root : $root . '/index.php';
+    public static function web() {
+        $root = self::domain();
+        return  $root;
     }
 
     /**
@@ -49,7 +49,7 @@ class base {
      *
      * @return string
      */
-    public function history() {
+    public static function history() {
         return isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : '';
     }
 

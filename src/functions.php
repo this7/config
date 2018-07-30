@@ -20,16 +20,7 @@ if (!function_exists('R')) {
     function R($callback, ...$table) {
         try {
             $_user = array();
-            if (defined('LOGIN')) {
-                if (!class_exists('server\models\login')) {
-                    throw new Exception('Error return:Login模型不存在', -2);
-                }
-                if (!method_exists('server\models\login', 'login')) {
-                    throw new Exception('Error return:Login::login方法不存在', -2);
-                }
-                $_user = call_user_func_array(array('server\models\login', 'login'), []);
-            }
-            $data = array();
+            $data  = array();
             #循环创建数据
             foreach ($table as $key => $value) {
                 $data[$value] = sql::table($value);
@@ -105,11 +96,92 @@ if (!function_exists('R')) {
                     break;
                 }
             }
-            return \this7\config\config::output(compact('code', 'msg', 'data', 'url'));
-
+            ret($code, $msg, $data);
         } catch (Exception $e) {
             \this7\debug\debug::exception($e);
         }
+    }
+}
+
+if (!function_exists('D')) {
+    /**
+     * 数据库操作
+     * @param string $table [description]
+     */
+    function D($table = '') {
+        C('sql', 'prefix', "mt_");
+        return sql::table($table);
+    }
+}
+
+if (!function_exists('N')) {
+    /**
+     * 检测所有变量是否为空
+     */
+    function N(...$vars) {
+        foreach ($vars as $key => $value) {
+            if (!isset($_POST[$value]) && !isset($_GET[$value])) {
+                ret(10000, $value . "参数不能为空");
+            }
+        }
+    }
+}
+
+if (!function_exists('get')) {
+    /**
+     * 检测所有变量是否为空
+     */
+    function get($name) {
+        $_GET[$name] = isset($_GET[$name]) ? $_GET[$name] : '';
+        return $_GET[$name];
+    }
+}
+if (!function_exists('post')) {
+    /**
+     * 检测所有变量是否为空
+     */
+    function post($name) {
+        $_POST[$name] = isset($_POST[$name]) ? $_POST[$name] : '';
+        return $_POST[$name];
+    }
+}
+if (!function_exists('page')) {
+    /**
+     * 分页
+     * @lp
+     * @DateTime  2017-12-18 10:05:46
+     * @param     [type]                   $pageNum [每页显示数量]
+     * @param     [type]                   $table   [表名]
+     * @param     array                    $where   [查询条件]
+     * @param     string                   $order   [排序]
+     * @param     string                   $join   [关联数组]
+     * @return    [type]                            [对象字符串]
+     */
+    function page($pageNum, $table, $where = array(), $order = '', $join = array()) {
+        $page      = isset($_POST['page']) ? $_POST['page'] : 1; //页码
+        $pageNum   = $pageNum ? $pageNum : 10; //每页显示数量
+        $db        = D($table);
+        $row       = $where ? count($db->where($where)->get()) : count($db->get()); //总记录数
+        $pageCode  = ceil($row / $pageNum); //总页数
+        $pageStart = $pageNum * $page - $pageNum; //计算记录开始位置(通过k+x=y)
+        #判断是否关联数据
+        if (!empty($join)) {
+            $db->join($join[0], $join[1], $join[2], $join[3]);
+        }
+
+        #判断是否有条件
+        if (!empty($where)) {
+            $db->where($where);
+        }
+        #判断是否有排序
+        if (!empty($order)) {
+            $db->orderBy($order[0], $order[1]);
+        }
+
+        $data            = $db->limit($pageStart, $pageNum)->get(); //判断是否有where和order
+        $value['maxNum'] = $row;
+        $value['list']   = $data;
+        return $value;
     }
 }
 

@@ -109,7 +109,6 @@ if (!function_exists('D')) {
      * @param string $table [description]
      */
     function D($table = '') {
-        C('sql', 'prefix', "mt_");
         return sql::table($table);
     }
 }
@@ -131,19 +130,20 @@ if (!function_exists('get')) {
     /**
      * 检测所有变量是否为空
      */
-    function get($name) {
-        $_GET[$name] = isset($_GET[$name]) ? $_GET[$name] : '';
-        return $_GET[$name];
+    function get($name = '') {
+        $value = isset($_GET[$name]) ? $_GET[$name] : "";
+        return $value;
     }
 }
 if (!function_exists('post')) {
     /**
      * 检测所有变量是否为空
      */
-    function post($name) {
-        $_POST[$name] = isset($_POST[$name]) ? $_POST[$name] : '';
-        return $_POST[$name];
+    function post($name = '') {
+        $value = isset($_POST[$name]) ? $_POST[$name] : "";
+        return $value;
     }
+
 }
 if (!function_exists('page')) {
     /**
@@ -336,13 +336,21 @@ if (!function_exists('ret')) {
                 'data' => $body,
             );
         }
-        ob_end_clean();
-        $array = to_json($array);
-        if (IS_DEFEND) {
-            $array = encrypt($array, FRAMEKEY);
+
+        switch ($_GET['type']) {
+        case 'dapi':
+            P($array);
+            break;
+        case 'api':
+            ob_end_clean();
+            $array = to_json($array);
+            if (IS_DEFEND) {
+                $array = encrypt($array, FRAMEKEY);
+            }
+            echo $array;
+            exit();
+            break;
         }
-        echo $array;
-        exit();
     }
 }
 
@@ -370,6 +378,29 @@ if (!function_exists('is_json')) {
     function is_json($string) {
         json_decode($string);
         return (json_last_error() == JSON_ERROR_NONE);
+    }
+
+}
+
+if (!function_exists('is_boolean')) {
+    /**
+     * 判断布尔值
+     * @Author   Sean       Yan
+     * @DateTime 2018-07-31
+     * @param    string     $boolean   字符类型
+     * @param    boolean    $is_string 返回类型
+     * @return   boolean               [description]
+     */
+    function is_boolean($boolean = '', $is_string = false) {
+        if ($boolean) {
+            $val = 1;
+        } else {
+            $val = 0;
+        }
+        if ($is_string) {
+            return strval($val);
+        }
+        return $val;
     }
 
 }

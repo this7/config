@@ -375,9 +375,8 @@ if (!function_exists('is_json')) {
      * @param  json  $string   需要判断的数据
      * @return boolean
      */
-    function is_json($string) {
-        json_decode($string);
-        return (json_last_error() == JSON_ERROR_NONE);
+    function is_json($str) {
+        return !is_null(json_decode($str));
     }
 
 }

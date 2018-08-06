@@ -35,7 +35,7 @@ if (version_compare(PHP_VERSION, '5.6.0', '<')) {
 /**
  * 设置名称及版本号
  */
-defined('VERSION') or define('VERSION', "V0.0.1");
+defined('VERSION') or define('VERSION', "V3.0.8");
 
 defined('FRAMEWORK') or define('FRAMEWORK', "this7");
 

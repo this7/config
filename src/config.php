@@ -51,7 +51,6 @@ class config {
         defined('IS_WECHAT') or define('IS_WECHAT', decide::isWeChat());
         defined('IS_DOMAIN') or define('IS_DOMAIN', decide::isDomain());
         defined('IS_HTTPS') or define('IS_HTTPS', decide::isHttps());
-
         defined('ROOT') or define('ROOT', base::web());
         defined('URL') or define('URL', base::url());
         define("HISTORY", isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : '');
@@ -69,13 +68,13 @@ class config {
         } else {
             $data = file_get_contents('php://input');
         }
-        if (is_string($data)) {
-            parse_str($data, $query_arr);
-            return $_POST = $query_arr;
+        if (is_json($data)) {
+            return $_POST = to_array($data);
         } elseif (is_array($data)) {
             return $_POST = $data;
-        } elseif (is_json($data)) {
-            return $_POST = to_array($data);
+        } elseif (is_string($data)) {
+            parse_str($data, $query_arr);
+            return $_POST = $query_arr;
         } else {
             return $_POST = $data;
         }

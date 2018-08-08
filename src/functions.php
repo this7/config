@@ -675,7 +675,9 @@ if (!function_exists('site_url')) {
             }
             #转换参数信息
             if (!empty($parameter)) {
-                if (strstr($parameter, "=")) {
+                if (is_array($parameter)) {
+                    $par = array_merge($par, $parameter);
+                } elseif (strstr($parameter, "=")) {
                     $array = strstr($parameter, ";") ? explode(';', $parameter) : explode('&', $parameter);
                     foreach ($array as $key => $value) {
                         $value          = explode('=', $value);
@@ -686,14 +688,12 @@ if (!function_exists('site_url')) {
                     for ($i = 0; $i < count($array); $i += 2) {
                         $par[$array[$i]] = $array[$i + 1];
                     }
-                } elseif (is_array($parameter)) {
-                    $par = $parameter;
                 }
             }
         }
         #进行参数拼接
         foreach ($par as $key => $value) {
-            if ($key == 'model' || $key == 'action') {
+            if ($key == 'model' || $key == 'action' || $key == 'c' || $key == 'a') {
                 $url .= "/{$value}";
             } elseif ($key == 'type') {
                 continue;
@@ -725,7 +725,6 @@ if (!function_exists('replace_url')) {
      * @return mixed
      */
     function replace_url($url = '', $type = 'link') {
-
         #判断链接是否为空
         if (empty($url) && $type == 'link') {
             return 'javascript:void(0)';

@@ -558,7 +558,7 @@ if (!function_exists('encrypt')) {
      * @param  string $key  加解密秘钥
      * @return string       返回加密数据
      */
-    function encrypt($data = "", $key = "") {
+    function encrypt($data = "", $key = "this7") {
         $char = $str = null;
         $key  = md5($key);
         $x    = 0;
@@ -585,7 +585,7 @@ if (!function_exists('decrypt')) {
      * @param  string $key  加解密秘钥
      * @return string       返回解密数据
      */
-    function decrypt($data = "", $key = "") {
+    function decrypt($data = "", $key = "this7") {
         $char = $str = null;
         $key  = md5($key);
         $x    = 0;
@@ -622,11 +622,12 @@ if (!function_exists('redirect')) {
         if (!preg_match('#^https?://#i', $uri)) {
             $uri = site_url($uri);
         }
-
         switch ($method) {
-        case 'refresh':header("Refresh:0;url=" . $uri);
+        case 'refresh':
+            header("Refresh:0;url=" . $uri);
             break;
-        default:header("Location: " . $uri, TRUE, $http_response_code);
+        default:
+            header("Location: " . $uri, TRUE, $http_response_code);
             break;
         }
         exit;
@@ -641,52 +642,72 @@ if (!function_exists('site_url')) {
      * @return [type]      [description]
      */
     function site_url($address = NULL, $parameter = NULL) {
-        if (strstr($address, "http://") || strstr($address, "https://") || strstr($address, "//")) {
-            return $address;
-        }
-        $array = explode("/", $address);
-        $count = count($array);
-        $par   = array();
-        $url   = null;
-        switch ($count) {
-        case '3':
-            $root     = rtrim(ROOT, "/") . '/' . $array[0];
-            $par['c'] = $array[1];
-            $par['a'] = $array[2];
-            break;
-        case '2':
-            $root     = rtrim(ROOT, "/");
-            $par['c'] = $array[0];
-            $par['a'] = $array[1];
-            break;
-        default:
-        case '1':
-            $root     = rtrim(ROOT, "/");
-            $par['c'] = $_GET['model'];
-            $par['a'] = $array[0];
-            break;
-        }
-        #转换参数信息
-        if (!empty($parameter)) {
-            if (strstr($parameter, "=")) {
-                $array = strstr($parameter, ";") ? explode(';', $parameter) : explode('&', $parameter);
-                foreach ($array as $key => $value) {
-                    $value          = explode('=', $value);
-                    $par[$value[0]] = $value[1];
+        #设置默认参数
+        $par  = array();
+        $url  = null;
+        $root = rtrim(ROOT, "/");
+        #如果传入第一个参数为数组
+        if (is_array($address)) {
+            $par = $address;
+        } else {
+            if (strstr($address, "http://") || strstr($address, "https://") || strstr($address, "//")) {
+                return $address;
+            }
+            $array = explode("/", $address);
+            $count = count($array);
+            switch ($count) {
+            case '3':
+                $root     = rtrim(ROOT, "/") . '/' . $array[0];
+                $par['c'] = $array[1];
+                $par['a'] = $array[2];
+                break;
+            case '2':
+                $root     = rtrim(ROOT, "/");
+                $par['c'] = $array[0];
+                $par['a'] = $array[1];
+                break;
+            default:
+            case '1':
+                $root     = rtrim(ROOT, "/");
+                $par['c'] = $_GET['model'];
+                $par['a'] = $array[0];
+                break;
+            }
+            #转换参数信息
+            if (!empty($parameter)) {
+                if (strstr($parameter, "=")) {
+                    $array = strstr($parameter, ";") ? explode(';', $parameter) : explode('&', $parameter);
+                    foreach ($array as $key => $value) {
+                        $value          = explode('=', $value);
+                        $par[$value[0]] = $value[1];
+                    }
+                } elseif (strstr($parameter, "/")) {
+                    $array = explode('/', $parameter);
+                    for ($i = 0; $i < count($array); $i += 2) {
+                        $par[$array[$i]] = $array[$i + 1];
+                    }
+                } elseif (is_array($parameter)) {
+                    $par = $parameter;
                 }
-            } elseif (strstr($parameter, "/")) {
-                $array = explode('/', $parameter);
-                for ($i = 0; $i < count($array); $i += 2) {
-                    $par[$array[$i]] = $array[$i + 1];
-                }
-            } elseif (is_array($parameter)) {
-                $par = $parameter;
             }
         }
         #进行参数拼接
         foreach ($par as $key => $value) {
-            if ($key == 'c' || $key == 'a' || $key == 'w') {
+            if ($key == 'model' || $key == 'action') {
                 $url .= "/{$value}";
+            } elseif ($key == 'type') {
+                continue;
+            } elseif ($key == 'app') {
+                switch ($value) {
+                case 'client':
+                    continue;
+                    break;
+                case 'api':
+                case 'dapi':
+                case 'system':
+                    $url .= "/{$value}";
+                    break;
+                }
             } else {
                 $url .= "/{$key}/{$value}";
             }
@@ -745,7 +766,7 @@ if (!function_exists('array_remove')) {
         if ($index !== FALSE) {
             array_splice($data, $index, 1);
         }
-        return $data;
+        return array_filter($data);
 
     }
 }

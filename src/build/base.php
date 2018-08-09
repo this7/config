@@ -20,7 +20,7 @@ class base {
      */
     public static function url() {
         $root = self::domain();
-        return trim($root. '/' . trim($_SERVER['REQUEST_URI'], '/\\'), '/');
+        return trim($root . '/' . trim($_SERVER['REQUEST_URI'], '/\\'), '/');
     }
 
     /**
@@ -40,8 +40,8 @@ class base {
      * @return string
      */
     public static function web() {
-        $root = self::domain();
-        return  $root;
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+        $url      = "$protocol$_SERVER[HTTP_HOST]";
     }
 
     /**

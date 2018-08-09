@@ -29,8 +29,9 @@ class base {
      * @return string
      */
     public static function domain() {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
         return defined('RUN_MODE') && RUN_MODE != 'HTTP' ? ''
-        : trim('http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']), '/\\');
+        : trim($protocol . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']), '/\\');
     }
 
     /**
@@ -40,8 +41,8 @@ class base {
      * @return string
      */
     public static function web() {
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-        $url      = "$protocol$_SERVER[HTTP_HOST]";
+        $root = self::domain();
+        return $root;
     }
 
     /**

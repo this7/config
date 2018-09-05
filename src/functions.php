@@ -508,7 +508,7 @@ if (!function_exists('to_mkdir')) {
             $path = rtrim($path, '/');
         }
         #执行目录创建
-        if (!file_exists($path)) {
+        if (!is_dir($path)) {
             if (!mkdir($path, 0777, true)) {
                 return false;
             }
@@ -516,7 +516,7 @@ if (!function_exists('to_mkdir')) {
         }
         #文件则进行文件创建
         if ($file_suffix) {
-            if (!file_exists($file)) {
+            if (!is_file($file)) {
                 if (!file_put_contents($file, $data)) {
                     return false;
                 }
@@ -1075,5 +1075,61 @@ if (!function_exists('compress_html')) {
             "",
         );
         return preg_replace($pattern, $replace, $string);
+    }
+}
+if (!function_exists('static_storage')) {
+
+    function static_storage($key = '', $value = '') {
+        if (DEBUG) {
+            if (!isset($data)) {
+                static $data;
+            }
+            if (!empty($key) && !empty($value)) {
+                $data[$key][] = $value;
+            } else {
+                return $data;
+            }
+        }
+
+    }
+}
+
+if (!function_exists('sql_processing')) {
+    /**
+     * SQL字段处理
+     * @Author   Sean       Yan
+     * @DateTime 2018-09-04
+     * @param    string     $sql   SQL语句
+     * @param    array      $array 字段值
+     * @return   string            返回完整语句
+     */
+    function sql_processing($sql = '', $array = array()) {
+        if (!empty($array)) {
+            $sql    = explode("?", $sql);
+            $string = '';
+            foreach ($sql as $key => $value) {
+                if (isset($array[$key]) && $array[$key]) {
+                    $string .= trim($value) . $array[$key];
+                } else {
+                    $string .= $value;
+                }
+            }
+            return $string;
+        } else {
+            return $sql;
+        }
+    }
+}
+
+if (!function_exists('getmicrotime')) {
+    /**
+     * 返回毫秒数
+     * @Author   Sean       Yan
+     * @DateTime 2018-09-04
+     * @return   [type]     [description]
+     */
+    function getmicrotime() {
+        list($usec, $sec) = explode(" ", microtime());
+        return ((float) $usec + (float) $sec);
     }
 }

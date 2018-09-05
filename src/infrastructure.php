@@ -21,7 +21,7 @@ date_default_timezone_set("PRC"); //设置时区（中国)
 
 defined('DEBUG') or define('DEBUG', true); //DEBUG调试器
 
-defined('XDEBUG') or define('XDEBUG', true); //DEBUG调试器
+defined('XDEBUG') or define('XDEBUG', true); //XDEBUG调试器
 
 defined('LOGIN') or define('LOGIN', false); //登录控制器
 

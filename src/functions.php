@@ -188,14 +188,29 @@ if (!function_exists('page')) {
 if (!function_exists('P')) {
     /**
      * 打印输出数据
-     * @param  string $name  名称/数据
-     * @param  string $value 对应值
+     * @Author   Sean       Yan
+     * @DateTime 2018-09-07
+     * @param    [type]     $name [description]
+     * @param    integer    $type [description]
      */
-    function P($name, $is_unhtml = false) {
-        if ($is_unhtml) {
+    function P($name, $type = 1) {
+
+        switch ($type) {
+        case 1:
+            echo "<pre style='position:relative;z-index:1000;padding:10px;border-radius:5px;background:#F5F5F5;border:1px solid #aaa;font-size:14px;line-height:18px;opacity:0.9;'>" . print_r($name, true) . "</pre>";
+            break;
+        case 2:
             $name = unhtml($name);
+            echo "<pre style='position:relative;z-index:1000;padding:10px;border-radius:5px;background:#F5F5F5;border:1px solid #aaa;font-size:14px;line-height:18px;opacity:0.9;'>" . print_r($name, true) . "</pre>";
+            break;
+        case 3:
+            echo "<pre>" . print_r($name, true) . "</pre>";
+            break;
+        default:
+            # code...
+            break;
         }
-        echo "<pre style='position:relative;z-index:1000;padding:10px;border-radius:5px;background:#F5F5F5;border:1px solid #aaa;font-size:14px;line-height:18px;opacity:0.9;'>" . print_r($name, true) . "</pre>";
+
     }
 }
 
@@ -244,9 +259,10 @@ if (!function_exists('C')) {
             #判断：如果没有传入新的配置项，则返回该配置项
             if (is_null(@$name)) {
                 $data = $config[$class];
-                $new  = array();
                 foreach ($data as $key => $value) {
-                    $new[$key] = $value['value'];
+                    if (!empty($value)) {
+                        $new[$key] = $value['value'];
+                    }
                 }
                 return $new;
             }

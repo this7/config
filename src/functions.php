@@ -283,8 +283,7 @@ if (!function_exists('F')) {
     function F($name, $value = '[get]', $path = 'temp/file') {
         static $cache = [];
 
-        $file = $path . '/' . $name . '.php';
-
+        $file = ROOT_DIR . DS . $path . '/' . $name . '.php';
         if ($value == '[del]') {
             if (is_file($file)) {
                 unlink($file);
@@ -453,6 +452,7 @@ if (!function_exists('get_json')) {
      */
     function get_json($file, $is_array = true, $rm_comment = true) {
         $json_string = file_get_contents($file);
+        $json_string = str_replace("/", "\/", $json_string);
         if ($rm_comment) {
             $json_string = remove_comment($json_string);
         }

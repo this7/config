@@ -464,6 +464,46 @@ if (!function_exists('get_json')) {
     }
 }
 
+if (!function_exists('check_json')) {
+    /**
+     * 检查JSON格式
+     * @Author   Sean       Yan
+     * @DateTime 2018-09-13
+     * @param    string     $data [description]
+     * @return   [type]           [description]
+     */
+    function check_json($output = '') {
+        try {
+            #1.可能存在一些备注信息
+            $output = remove_comment($output);
+            #2.json字符串必须以双引号包含
+            $output = str_replace("'", '"', $output);
+            #3.不能有多余的逗号 如：[1,2,]，用正则替换掉
+            $output = preg_replace('/,\s*([\]}])/m', '$1', $output);
+            #4.转义斜杠
+            $output = str_replace("/", "\/", $output);
+            #静态错误信息
+            static $ERRORS = array(
+                JSON_ERROR_NONE           => false,
+                JSON_ERROR_DEPTH          => 'JOSN超过最大堆叠深度',
+                JSON_ERROR_STATE_MISMATCH => 'JSON状态不匹配(无效或格式不正确的JSON)',
+                JSON_ERROR_CTRL_CHAR      => 'JSON控制字符错误，可能编码错误',
+                JSON_ERROR_SYNTAX         => 'JSON格式语法错误',
+                JSON_ERROR_UTF8           => 'JSON编码必须为：UTF-8字符，可能编码不正确',
+            );
+            $output = json_decode($output, true);
+            $error  = json_last_error();
+            $error  = isset($ERRORS[$error]) ? $ERRORS[$error] : '未知的错误';
+            if ($error) {
+                throw new \Exception($error, 10005);
+            }
+            return $output;
+        } catch (Exception $e) {
+            \this7\debug\debug::exception($e);
+        }
+    }
+}
+
 if (!function_exists('remove_comment')) {
     /**
      * 去除PHP代码注释

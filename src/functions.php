@@ -98,7 +98,7 @@ if (!function_exists('R')) {
             }
             ret($code, $msg, $data);
         } catch (Exception $e) {
-            \this7\debug\debug::exception($e);
+            errorout($e);
         }
     }
 }
@@ -121,6 +121,21 @@ if (!function_exists('N')) {
         foreach ($vars as $key => $value) {
             if (!isset($_POST[$value]) && !isset($_GET[$value])) {
                 ret(10000, $value . "参数不能为空");
+            }
+        }
+    }
+}
+
+if (!function_exists('NS')) {
+    /**
+     * 检测所有变量是否为空
+     */
+    function NS(...$vars) {
+        foreach ($vars as $key => $value) {
+            if (!isset($_POST[$value]) && !isset($_GET[$value])) {
+                ret(10000, $value . "字段不能为空");exit;
+            } elseif ((isset($_POST[$value]) && empty($_POST[$value])) || (isset($_GET[$value]) && empty($_GET[$value]))) {
+                ret(10000, $value . "参数不能为空");exit;
             }
         }
     }
@@ -368,6 +383,18 @@ if (!function_exists('ret')) {
         }
     }
 }
+if (!function_exists('errorout')) {
+    /**
+     * 错误输出
+     * @Author   Sean       Yan
+     * @DateTime 2018-09-13
+     * @param    string     $value [description]
+     * @return   [type]            [description]
+     */
+    function errorout($e = '') {
+        \this7\debug\debug::exception($e);
+    }
+}
 
 if (!function_exists('export')) {
     /**
@@ -499,7 +526,7 @@ if (!function_exists('check_json')) {
             }
             return $output;
         } catch (Exception $e) {
-            \this7\debug\debug::exception($e);
+            errorout($e);
         }
     }
 }

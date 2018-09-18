@@ -356,7 +356,6 @@ if (!function_exists('ret')) {
                 $msg = $msg[0];
             }
         }
-
         #判断是否Code失效
         if (!isset($array['code'])) {
             $array = array(
@@ -365,89 +364,17 @@ if (!function_exists('ret')) {
                 'data' => $body,
             );
         }
-
         switch ($_GET['type']) {
         case 'dapi':
-            P($array);
+            \this7\debug\debug::display($array);
             break;
         case 'api':
-            ob_end_clean();
-            $array = to_json($array);
-            if (IS_DEFEND) {
-                $array = encrypt($array, FRAMEKEY);
-            }
-            echo $array;
-            exit();
+            throw new Exception(json_encode($array['data'], JSON_UNESCAPED_UNICODE), 0);
             break;
         }
     }
 }
-if (!function_exists('errorout')) {
-    /**
-     * 错误输出
-     * @Author   Sean       Yan
-     * @DateTime 2018-09-13
-     * @param    string     $value [description]
-     * @return   [type]            [description]
-     */
-    function errorout($e = '') {
-        \this7\debug\debug::exception($e);
-    }
-}
 
-if (!function_exists('getTrace')) {
-    /**
-     * 格式化异常跟踪信息
-     * @Author   Sean       Yan
-     * @DateTime 2018-09-18
-     * @param    [type]     $traces [description]
-     * @return   [type]             [description]
-     */
-    function getTrace($traces) {
-        foreach ($traces as $v) {
-            if (!isset($v['file'])) {
-                $trace_info = 'error not in file,maybe in memory!';
-            } else {
-                #取得相对路径
-                $v['file'] = str_replace(ROOT_DIR, "", $v['file']);
-
-                if (isset($v['class'])) {
-                    $trace_info = "{$v['file']}, {$v['line']}, {$v['class']}, {$v['function']}";
-                } else if (isset($v['function'])) {
-                    $trace_info = "{$v['file']}, {$v['line']}, {$v['function']}";
-                } else {
-                    $trace_info = "{$v['file']}, {$v['line']}";
-                }
-
-                #判断发生错误的地方是否有参数
-                if (isset($v['args'])) {
-                    if (is_array($v['args'])) {
-                        foreach ($v['args'] as $ki => $vi) {
-                            #判断数组元素是否对象
-                            if (is_object($vi)) {
-                                unset($vi['args'][$ki]);
-                                $v['args'][$ki] = gettype($vi) . " obj";
-
-                            }
-                            #判断元素是否数组
-                            else if (is_array($vi)) {
-                                unset($v['args'][$ki]);
-                                $v['args'][$ki] = $ki . " array";
-                            }
-                        }
-                        #经过上面的处理数组剩下的元素都是基本类型的了
-                        $trace_info .= '(' . implode(',', $v['args']) . ')';
-                    } else {
-                        $trace_info .= '(' . $v['args'] . ')';
-                    }
-                } else if (isset($v['function'])) {
-                    $trace_info .= '()';
-                }
-            }
-            $result[] = $trace_info;
-        }
-    }
-}
 if (!function_exists('error')) {
     /**
      * 错误输出
@@ -933,11 +860,7 @@ if (!function_exists('get_post')) {
      * @return [type] [description]
      */
     function get_post($data = '') {
-        if ($_POST) {
-            $data = $_POST;
-        } else {
-            $data = file_get_contents('php://input');
-        }
+        $data = file_get_contents('php://input');
         if (is_array($data)) {
             return $data;
         } elseif (is_json($data)) {

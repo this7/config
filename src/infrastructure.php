@@ -11,10 +11,6 @@
  */
 header("Content-Type:text/html;charset=utf-8"); //设置系统的输出字符为utf-8
 
-header("Access-Control-Allow-Origin: *");
-
-ob_start(); //开启缓冲
-
 session_start(); //开始服务器session
 
 date_default_timezone_set("PRC"); //设置时区（中国)

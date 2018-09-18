@@ -9,7 +9,6 @@
  * @license   http://www.opensource.org/licenses/mit-license.php MIT
  * @link      http://www.ub-7.com
  */
-
 if (!function_exists('R')) {
     /**
      * 调用函数，用于数据返回
@@ -98,7 +97,7 @@ if (!function_exists('R')) {
             }
             ret($code, $msg, $data);
         } catch (Exception $e) {
-            errorout($e);
+            ERRORCODE($e);
         }
     }
 }
@@ -396,18 +395,81 @@ if (!function_exists('errorout')) {
     }
 }
 
-if (!function_exists('export')) {
+if (!function_exists('getTrace')) {
     /**
-     * 打印输出数据
-     * @param  string $name  名称/数据
-     * @param  string $value 对应值
+     * 格式化异常跟踪信息
+     * @Author   Sean       Yan
+     * @DateTime 2018-09-18
+     * @param    [type]     $traces [description]
+     * @return   [type]             [description]
      */
-    function export($name, $value = '') {
-        if (empty($value)) {
-            echo "<pre>" . print_r($name, true) . "</pre>";
-        } else {
-            echo "<pre>" . $name . ":" . $value . "</pre>";
+    function getTrace($traces) {
+        foreach ($traces as $v) {
+            if (!isset($v['file'])) {
+                $trace_info = 'error not in file,maybe in memory!';
+            } else {
+                #取得相对路径
+                $v['file'] = str_replace(ROOT_DIR, "", $v['file']);
+
+                if (isset($v['class'])) {
+                    $trace_info = "{$v['file']}, {$v['line']}, {$v['class']}, {$v['function']}";
+                } else if (isset($v['function'])) {
+                    $trace_info = "{$v['file']}, {$v['line']}, {$v['function']}";
+                } else {
+                    $trace_info = "{$v['file']}, {$v['line']}";
+                }
+
+                #判断发生错误的地方是否有参数
+                if (isset($v['args'])) {
+                    if (is_array($v['args'])) {
+                        foreach ($v['args'] as $ki => $vi) {
+                            #判断数组元素是否对象
+                            if (is_object($vi)) {
+                                unset($vi['args'][$ki]);
+                                $v['args'][$ki] = gettype($vi) . " obj";
+
+                            }
+                            #判断元素是否数组
+                            else if (is_array($vi)) {
+                                unset($v['args'][$ki]);
+                                $v['args'][$ki] = $ki . " array";
+                            }
+                        }
+                        #经过上面的处理数组剩下的元素都是基本类型的了
+                        $trace_info .= '(' . implode(',', $v['args']) . ')';
+                    } else {
+                        $trace_info .= '(' . $v['args'] . ')';
+                    }
+                } else if (isset($v['function'])) {
+                    $trace_info .= '()';
+                }
+            }
+            $result[] = $trace_info;
         }
+    }
+}
+if (!function_exists('error')) {
+    /**
+     * 错误输出
+     * @Author   Sean       Yan
+     * @DateTime 2018-09-18
+     * @param    string     $msg  [description]
+     * @param    integer    $code [description]
+     * @return   [type]           [description]
+     */
+    function error($msg = 'defeated', $code = 1) {
+        throw new Exception($msg, $code);
+    }
+}
+
+if (!function_exists('ERRORCODE')) {
+    /**
+     * 系统错误输出机制
+     * @param string $code [description]
+     * @param string $msg  [description]
+     */
+    function ERRORCODE($code = '', $msg = '') {
+        \this7\debug\debug::exception($code);
     }
 }
 
@@ -417,8 +479,17 @@ if (!function_exists('is_json')) {
      * @param  json  $string   需要判断的数据
      * @return boolean
      */
-    function is_json($str) {
-        return !is_null(json_decode($str));
+    function is_json($output) {
+        try {
+            $output = json_decode($output, true);
+            $error  = json_last_error();
+            if ($error === JSON_ERROR_NONE) {
+                return true;
+            }
+            throw new \Exception($error, -1);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
 }
@@ -526,7 +597,7 @@ if (!function_exists('check_json')) {
             }
             return $output;
         } catch (Exception $e) {
-            errorout($e);
+            ERRORCODE($e);
         }
     }
 }

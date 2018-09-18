@@ -68,6 +68,9 @@ class config {
         } else {
             $data = file_get_contents('php://input');
         }
+        if (empty($data)) {
+            return false;
+        }
         if (is_json($data)) {
             return $_POST = to_array($data);
         } elseif (is_array($data)) {

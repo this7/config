@@ -21,9 +21,11 @@ date_default_timezone_set("PRC"); //设置时区（中国)
 
 defined('DEBUG') or define('DEBUG', true); //DEBUG调试器
 
-defined('XDEBUG') or define('XDEBUG', true); //XDEBUG调试器
+defined('XDEBUG') or define('XDEBUG', false); //XDEBUG调试器
 
 defined('LOGIN') or define('LOGIN', false); //登录控制器
+
+defined('SYNSERVER') or define('SYNSERVER', ""); //同步服务器
 
 /**
  * 判断PHP版本是否符合

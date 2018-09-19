@@ -13,6 +13,10 @@ header("Content-Type:text/html;charset=utf-8"); //设置系统的输出字符为
 
 session_start(); //开始服务器session
 
+ob_start(); //开启冲出缓存
+
+echo "<script>console.log('欢迎使用This7框架')</script>";
+
 date_default_timezone_set("PRC"); //设置时区（中国)
 
 defined('DEBUG') or define('DEBUG', true); //DEBUG调试器

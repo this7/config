@@ -366,7 +366,7 @@ if (!function_exists('ret')) {
         }
         switch ($_GET['type']) {
         case 'dapi':
-            \this7\debug\debug::display($array);
+            \this7\debug\debug::assign($array);
             break;
         case 'api':
             throw new Exception(json_encode($array['data'], JSON_UNESCAPED_UNICODE), 0);
@@ -385,7 +385,8 @@ if (!function_exists('error')) {
      * @return   [type]           [description]
      */
     function error($msg = 'defeated', $code = 1) {
-        throw new Exception($msg, $code);
+        $first = debug_backtrace();
+        throw new \this7\debug\build\MyException($msg, $code, $first[0]['file'], $first[0]['line']);
     }
 }
 

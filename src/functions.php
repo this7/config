@@ -364,14 +364,18 @@ if (!function_exists('ret')) {
                 'data' => $body,
             );
         }
-        switch ($_GET['type']) {
-        case 'dapi':
-            \this7\debug\debug::assign($array);
-            break;
-        case 'api':
-            throw new Exception(json_encode($array['data'], JSON_UNESCAPED_UNICODE), 0);
-            break;
+        #将数组转变量
+        extract($array);
+        #如果不存在错误执行数据分配
+        if ($code == 0) {
+            \this7\debug\debug::assign($data);
         }
+        #如果存在错误则以错误形式输出
+        else {
+            $first = debug_backtrace();
+            throw new \this7\debug\build\MyException($msg, $code, $first[0]['file'], $first[0]['line']);
+        }
+        exit();
     }
 }
 
@@ -409,6 +413,9 @@ if (!function_exists('is_json')) {
      */
     function is_json($output) {
         try {
+            if (is_array($output)) {
+                return false;
+            }
             $output = json_decode($output, true);
             $error  = json_last_error();
             if ($error === JSON_ERROR_NONE) {

@@ -368,6 +368,7 @@ if (!function_exists('ret')) {
         extract($array);
         #如果不存在错误执行数据分配
         if ($code == 0) {
+            $data = !isset($data) || empty($data) ? ["成功"] : $data;
             \this7\debug\debug::assign($data);
         }
         #如果存在错误则以错误形式输出
@@ -1216,5 +1217,44 @@ if (!function_exists('getmicrotime')) {
     function getmicrotime() {
         list($usec, $sec) = explode(" ", microtime());
         return ((float) $usec + (float) $sec);
+    }
+}
+
+if (!function_exists('get_extension')) {
+    /**
+     * 获取文件后缀名
+     * @Author   Sean       Yan
+     * @DateTime 2018-09-28
+     * @param    [type]     $imagetype [description]
+     * @return   [type]                [description]
+     */
+    function get_extension($imagetype) {
+        if (empty($imagetype)) {
+            return false;
+        }
+        switch ($imagetype) {
+        case 'image/bmp':return '.bmp';
+        case 'image/cis-cod':return '.cod';
+        case 'image/gif':return '.gif';
+        case 'image/ief':return '.ief';
+        case 'image/jpeg':return '.jpeg';
+        case 'image/pipeg':return '.jfif';
+        case 'image/tiff':return '.tif';
+        case 'image/x-cmu-raster':return '.ras';
+        case 'image/x-cmx':return '.cmx';
+        case 'image/x-icon':return '.ico';
+        case 'image/x-portable-anymap':return '.pnm';
+        case 'image/x-portable-bitmap':return '.pbm';
+        case 'image/x-portable-graymap':return '.pgm';
+        case 'image/x-portable-pixmap':return '.ppm';
+        case 'image/x-rgb':return '.rgb';
+        case 'image/x-xbitmap':return '.xbm';
+        case 'image/x-xpixmap':return '.xpm';
+        case 'image/x-xwindowdump':return '.xwd';
+        case 'image/png':return '.png';
+        case 'image/x-jps':return '.jps';
+        case 'image/x-freehand':return '.fh';
+        default:return false;
+        }
     }
 }
